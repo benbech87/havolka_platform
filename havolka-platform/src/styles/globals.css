@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500&display=swap');
+
+:root {
+  /* Brand colours */
+  --color-black: #0A0A09;
+  --color-black-mid: #0D0D0B;
+  --color-black-soft: #111110;
+  --color-white: #ffffff;
+
+  /* Finish colours */
+  --finish-black: #1A1A18;
+  --finish-nickel: #B4B4AC;
+  --finish-bronze: #6B4A35;
+  --finish-graphite: #464642;
+
+  /* Text — dark site (public) */
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.45);
+  --text-tertiary: rgba(255, 255, 255, 0.22);
+
+  /* Borders — dark site */
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --border-mid: rgba(255, 255, 255, 0.07);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+
+  /* Status */
+  --color-success: #4A9E6B;
+  --color-warning: #BA7517;
+  --color-error: #E24B4A;
+  --color-info: #185FA5;
+
+  /* Typography */
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing */
+  --nav-height: 52px;
+  --sidebar-width: 200px;
+  --rail-width: 52px;
+  --content-max: 1280px;
+  --page-padding: 40px;
+}
+
+/* Light mode — portal option */
+[data-theme='light'] {
+  --text-primary: #0A0A09;
+  --text-secondary: rgba(10, 10, 9, 0.55);
+  --text-tertiary: rgba(10, 10, 9, 0.3);
+  --border-strong: rgba(10, 10, 9, 0.15);
+  --border-mid: rgba(10, 10, 9, 0.08);
+  --border-subtle: rgba(10, 10, 9, 0.04);
+  --bg-primary: #ffffff;
+  --bg-secondary: #F5F4F2;
+  --bg-tertiary: #ECEAE6;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--color-black);
+  color: var(--text-primary);
+}
+
+/* Typography */
+h1, h2, h3, .serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+/* Focus */
+:focus-visible {
+  outline: 1.5px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

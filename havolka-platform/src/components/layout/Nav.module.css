@@ -1,0 +1,129 @@
+.nav {
+  background: #0A0A09;
+  height: 52px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  gap: 28px;
+}
+
+.link {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.link:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.right {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.login {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.42);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: color 0.15s;
+}
+
+.login:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.apply {
+  font-size: 10px;
+  color: #fff;
+  border: 0.5px solid rgba(255, 255, 255, 0.22);
+  padding: 6px 18px;
+  border-radius: 2px;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  transition: background 0.15s;
+}
+
+.apply:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.mobileMenu {
+  position: fixed;
+  inset: 52px 0 0 0;
+  background: #0A0A09;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 32px;
+  gap: 2px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.06);
+}
+
+.mobileMenu a {
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  font-size: 16px;
+  padding: 14px 0;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+  letter-spacing: 0.04em;
+}
+
+.mobileApply {
+  margin-top: 16px;
+  background: #fff !important;
+  color: #0A0A09 !important;
+  padding: 13px 24px !important;
+  border-radius: 2px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 12px !important;
+  letter-spacing: 0.09em !important;
+  border-bottom: none !important;
+}
+
+@media (max-width: 768px) {
+  .links { display: none; }
+  .right { display: none; }
+  .hamburger { display: flex; }
+  .nav { padding: 0 24px; }
+}

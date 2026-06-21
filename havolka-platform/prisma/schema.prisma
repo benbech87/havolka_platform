@@ -1,0 +1,626 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// MEMBERS + AUTH
+// ============================================================
+
+model Member {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  firstName         String
+  lastName          String
+  company           String
+  tradeType         TradeType
+  abn               String?
+  website           String?
+  phone             String?
+  projectsPerYear   String?
+  whyHavolka        String?
+  companyFoundedDate DateTime?
+  merchAddress      String?
+  status            MemberStatus @default(PENDING)
+  approvedAt        DateTime?
+  approvedBy        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  orders            Order[]
+  quotes            Quote[]
+  sampleRequests    SampleRequest[]
+  notes             Note[]
+  notifications     Notification[]
+  savedProducts     SavedProduct[]
+  callbackRequests  CallbackRequest[]
+  projects          Project[]
+  documents         Document[]
+  finishSamples     FinishSample[]
+  returns           Return[]
+  merchDrops        MerchDrop[]
+
+  @@map("members")
+}
+
+enum TradeType {
+  ARCHITECT
+  INTERIOR_DESIGNER
+  BUILDER
+  OTHER
+}
+
+enum MemberStatus {
+  PENDING
+  PRICING_ACCESS
+  FULL_ACCESS
+  SUSPENDED
+}
+
+// ============================================================
+// PRODUCTS + SKUS
+// ============================================================
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  category    ProductCategory
+  description String?
+  bodyHtml    String?
+  brand       Brand    @default(HAVOLKA)
+  status      ProductStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  skus        Sku[]
+  images      ProductImage[]
+
+  @@map("products")
+}
+
+model Sku {
+  id          String   @id @default(cuid())
+  productId   String
+  sku         String   @unique
+  finish      Finish
+  function    DoorFunction?
+  size        String?
+  price1_5    Float?   // 1-5 units
+  price6_9    Float?   // 6-9 units
+  price10plus Float?   // 10+ units
+  cost        Float?
+  stockLevel  Int      @default(0)
+  lowStockThreshold Int @default(10)
+  weight      Float?
+  barcode     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product     Product  @relation(fields: [productId], references: [id])
+  orderItems  OrderItem[]
+  quoteItems  QuoteItem[]
+
+  @@map("skus")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  altText   String?
+  position  Int     @default(0)
+  finish    Finish?
+
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("product_images")
+}
+
+enum ProductCategory {
+  DOOR_LEVER
+  DOOR_KNOB
+  FLUSH_PULL
+  HINGE
+  DOOR_STOP
+  FLUSH_BOLT
+  CABINET_HANDLE
+  ENTRANCE_SET
+}
+
+enum ProductStatus {
+  ACTIVE
+  COMING_SOON
+  ARCHIVED
+}
+
+enum Brand {
+  HAVOLKA
+  OOKAMI_STUDIO
+}
+
+enum Finish {
+  SMOOTH_BLACK
+  SMOOTH_NICKEL
+  SMOOTH_BRONZE
+  SMOOTH_GRAPHITE
+}
+
+enum DoorFunction {
+  PASSAGE
+  PRIVACY
+  ENTRANCE
+  LEVER_ONLY
+}
+
+// ============================================================
+// ORDERS
+// ============================================================
+
+model Order {
+  id          String      @id @default(cuid())
+  memberId    String
+  orderNumber String      @unique @default(cuid())
+  poNumber    String?
+  jobName     String?
+  status      OrderStatus @default(PROCESSING)
+  subtotal    Float
+  gst         Float
+  total       Float
+  shippingAddress String?
+  notes       String?
+  stripePaymentId String?
+  dispatchedAt DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  member      Member      @relation(fields: [memberId], references: [id])
+  items       OrderItem[]
+  invoice     Document?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  skuId     String
+  quantity  Int
+  unitPrice Float
+  total     Float
+
+  order     Order  @relation(fields: [orderId], references: [id])
+  sku       Sku    @relation(fields: [skuId], references: [id])
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PROCESSING
+  PACKED
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+}
+
+// ============================================================
+// QUOTES
+// ============================================================
+
+model Quote {
+  id          String      @id @default(cuid())
+  memberId    String?
+  projectName String?
+  poNumber    String?
+  status      QuoteStatus @default(DRAFT)
+  total       Float       @default(0)
+  expiresAt   DateTime?
+  pdfUrl      String?
+  // Lead capture for non-members
+  leadName    String?
+  leadEmail   String?
+  leadCompany String?
+  leadPhone   String?
+  leadType    TradeType?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  member      Member?     @relation(fields: [memberId], references: [id])
+  items       QuoteItem[]
+
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id        String @id @default(cuid())
+  quoteId   String
+  skuId     String
+  quantity  Int
+  unitPrice Float
+  total     Float
+  notes     String?
+
+  quote     Quote  @relation(fields: [quoteId], references: [id])
+  sku       Sku    @relation(fields: [skuId], references: [id])
+
+  @@map("quote_items")
+}
+
+enum QuoteStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  CONVERTED
+}
+
+// ============================================================
+// PROJECTS
+// ============================================================
+
+model Project {
+  id          String   @id @default(cuid())
+  memberId    String
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  member      Member   @relation(fields: [memberId], references: [id])
+  documents   Document[]
+  notes       Note[]
+
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETE
+  ON_HOLD
+}
+
+// ============================================================
+// NOTES (shared between member portal and BDG Hub)
+// ============================================================
+
+model Note {
+  id        String   @id @default(cuid())
+  memberId  String
+  projectId String?
+  content   String
+  authorId  String   // member ID or team member name
+  authorName String
+  isHavolka Boolean  @default(false) // true = from Ben/Rafe/Kez
+  createdAt DateTime @default(now())
+
+  member    Member   @relation(fields: [memberId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  @@map("notes")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  memberId  String
+  type      NotificationType
+  title     String
+  body      String
+  read      Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+
+  member    Member           @relation(fields: [memberId], references: [id])
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  ORDER_DISPATCHED
+  ORDER_DELIVERED
+  QUOTE_EXPIRING
+  SCHEDULE_UPDATED
+  MERCH_AVAILABLE
+  TIER_UPGRADE
+  NEW_PRODUCT
+  GENERAL
+}
+
+// ============================================================
+// SAMPLE REQUESTS (leads + member)
+// ============================================================
+
+model SampleRequest {
+  id          String   @id @default(cuid())
+  memberId    String?
+  name        String
+  company     String
+  email       String
+  tradeType   TradeType?
+  address     String
+  finishes    String[] // array of finish names
+  status      String   @default("pending")
+  dispatchedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  member      Member?  @relation(fields: [memberId], references: [id])
+
+  @@map("sample_requests")
+}
+
+// ============================================================
+// FINISH SAMPLES (member tracker)
+// ============================================================
+
+model FinishSample {
+  id          String   @id @default(cuid())
+  memberId    String
+  finish      Finish
+  status      String   @default("requested")
+  requestedAt DateTime @default(now())
+  deliveredAt DateTime?
+
+  member      Member   @relation(fields: [memberId], references: [id])
+
+  @@map("finish_samples")
+}
+
+// ============================================================
+// CALLBACK REQUESTS
+// ============================================================
+
+model CallbackRequest {
+  id        String   @id @default(cuid())
+  memberId  String
+  phone     String
+  bestTime  String
+  notes     String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  member    Member   @relation(fields: [memberId], references: [id])
+
+  @@map("callback_requests")
+}
+
+// ============================================================
+// SAVED PRODUCTS
+// ============================================================
+
+model SavedProduct {
+  id        String   @id @default(cuid())
+  memberId  String
+  productId String
+  skuId     String?
+  createdAt DateTime @default(now())
+
+  member    Member   @relation(fields: [memberId], references: [id])
+
+  @@map("saved_products")
+}
+
+// ============================================================
+// DOCUMENTS
+// ============================================================
+
+model Document {
+  id        String       @id @default(cuid())
+  memberId  String
+  projectId String?
+  orderId   String?      @unique
+  type      DocumentType
+  name      String
+  url       String
+  fileSize  Int?
+  createdAt DateTime     @default(now())
+
+  member    Member       @relation(fields: [memberId], references: [id])
+  project   Project?     @relation(fields: [projectId], references: [id])
+  order     Order?       @relation(fields: [orderId], references: [id])
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  INVOICE
+  QUOTE_PDF
+  DOOR_SCHEDULE
+  SPEC_SHEET
+  PRICEBOOK
+}
+
+// ============================================================
+// RETURNS
+// ============================================================
+
+model Return {
+  id        String   @id @default(cuid())
+  memberId  String
+  orderId   String
+  reason    String
+  status    String   @default("pending")
+  notes     String?
+  createdAt DateTime @default(now())
+
+  member    Member   @relation(fields: [memberId], references: [id])
+
+  @@map("returns")
+}
+
+// ============================================================
+// MERCH DROPS
+// ============================================================
+
+model MerchDrop {
+  id          String     @id @default(cuid())
+  memberId    String
+  type        MerchTrigger
+  item        String
+  status      String     @default("pending")
+  address     String?
+  dispatchedAt DateTime?
+  createdAt   DateTime   @default(now())
+
+  member      Member     @relation(fields: [memberId], references: [id])
+
+  @@map("merch_drops")
+}
+
+enum MerchTrigger {
+  FIRST_ORDER
+  BIRTHDAY
+  MILESTONE
+  TIER_UPGRADE
+}
+
+// ============================================================
+// DOOR SCHEDULES (BDG Hub / Rafe's workspace)
+// ============================================================
+
+model DoorSchedule {
+  id          String         @id @default(cuid())
+  memberId    String
+  projectName String
+  memberName  String
+  memberCompany String
+  doorCount   Int
+  finishes    String
+  status      ScheduleStatus @default(QUEUED)
+  notes       String?
+  fileUrl     String?
+  assignedTo  String?        @default("Rafe")
+  requestedAt DateTime       @default(now())
+  completedAt DateTime?
+
+  @@map("door_schedules")
+}
+
+enum ScheduleStatus {
+  QUEUED
+  IN_PROGRESS
+  COMPLETE
+}
+
+// ============================================================
+// SUPPLIERS + PURCHASING (BDG Hub)
+// ============================================================
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String?
+  email     String?
+  country   String?
+  leadWeeks Int?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id          String   @id @default(cuid())
+  supplierId  String
+  poNumber    String   @unique
+  status      POStatus @default(DRAFT)
+  totalAmount Float
+  depositPaid Float?
+  balancePaid Float?
+  notes       String?
+  eta         DateTime?
+  receivedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  items       POItem[]
+
+  @@map("purchase_orders")
+}
+
+model POItem {
+  id       String @id @default(cuid())
+  poId     String
+  skuRef   String
+  quantity Int
+  unitCost Float
+  total    Float
+
+  po       PurchaseOrder @relation(fields: [poId], references: [id])
+
+  @@map("po_items")
+}
+
+enum POStatus {
+  DRAFT
+  SENT
+  CONFIRMED
+  IN_PRODUCTION
+  SHIPPED
+  RECEIVED
+  CANCELLED
+}
+
+// ============================================================
+// LEADS (auto-captured from site)
+// ============================================================
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String
+  company   String?
+  phone     String?
+  tradeType TradeType?
+  source    LeadSource
+  product   String?
+  notes     String?
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+
+  @@map("leads")
+}
+
+enum LeadSource {
+  SAMPLE_REQUEST
+  QUOTE_REQUEST
+  BIM_DOWNLOAD
+  AI_SCHEDULE
+  CONTACT_FORM
+  APPLICATION
+}
+
+// ============================================================
+// TEAM (BDG Hub users)
+// ============================================================
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      TeamRole
+  brand     String?  // null = all brands
+  createdAt DateTime @default(now())
+
+  @@map("team_members")
+}
+
+enum TeamRole {
+  ADMIN
+  OPERATIONS
+  SCHEDULES
+  FINANCE
+}

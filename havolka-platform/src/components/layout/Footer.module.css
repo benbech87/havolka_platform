@@ -1,0 +1,113 @@
+.trust {
+  border-top: 0.5px solid rgba(255, 255, 255, 0.06);
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.trustItem {
+  padding: 22px 0;
+  border-right: 0.5px solid rgba(255, 255, 255, 0.05);
+  padding-right: 28px;
+  padding-left: 28px;
+}
+
+.trustItem:first-child { padding-left: 0; }
+.trustItem:last-child { border-right: none; }
+
+.trustLabel {
+  font-size: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.18);
+  margin-bottom: 5px;
+}
+
+.trustValue {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.48);
+  line-height: 1.4;
+}
+
+.footer {
+  background: #0A0A09;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.06);
+  padding: 44px 40px 26px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 36px;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.22em;
+  margin-bottom: 9px;
+}
+
+.tagline {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.22);
+  line-height: 1.7;
+  max-width: 190px;
+}
+
+.colTitle {
+  font-size: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.2);
+  margin-bottom: 13px;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.links a {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.links a:hover {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.bottom {
+  border-top: 0.5px solid rgba(255, 255, 255, 0.05);
+  padding-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.legal {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.bdg {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+  .trust { grid-template-columns: 1fr 1fr; padding: 0 24px; }
+  .trustItem { padding: 16px 12px; border-right: none; border-bottom: 0.5px solid rgba(255,255,255,0.05); }
+  .footer { padding: 36px 24px 20px; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+}
